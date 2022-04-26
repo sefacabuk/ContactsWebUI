@@ -53,5 +53,57 @@ namespace ContactsWebUI.Controllers
             return sonuc;
         }
 
+
+
+        public IActionResult Yeni()
+        {
+
+            UsersDto user = new UsersDto();
+
+            return View(user);
+        }
+
+
+        [HttpPost]
+        public IActionResult KaydetYeni(UsersDto user)
+        {
+
+            string link = Sabitler.ApiLink + "api/users";
+
+            //object sonucList = new object();
+
+            try
+            {
+                var httpClient = new HttpClient();
+                //httpClient.DefaultRequestHeaders.Authorization =
+                //    new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("Token"));
+
+                string json = "";
+                json = Newtonsoft.Json.JsonConvert.SerializeObject(user);
+                var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+                var postTask = httpClient.PostAsync(link, httpContent);
+                postTask.Wait();
+                var postResult = postTask.Result;
+                var responJsonText = postResult.Content.ReadAsStringAsync().Result;
+
+                var sonuc = (JsonConvert.DeserializeObject<DataResult<UsersDto>>(responJsonText));
+
+                if (!sonuc.Success)
+                {
+                    return Json(new { success = false, responseText = sonuc.Message });
+                }
+
+                //isverenIsgorenErisimHakkiView = sonuc.Data;
+
+                return Json(new { success = true, responseText = "Kayıt Başarılı" });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, responseText ="Hata" });
+            }
+
+        }
+
     }
 }
