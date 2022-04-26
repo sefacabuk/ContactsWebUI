@@ -1,0 +1,123 @@
+﻿@model ContactsWebUI.Models.UsersDto
+
+
+@{
+    ViewData["Title"] = "Güncelle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form id="frm" name="frm" method="post">
+    <input hidden id="Id" name="Id" value="@Model.Id" />
+    <div class="form-group">
+        <label>Ad</label>
+        <input type="text" id="Ad" name="Ad" class="form-control" value="@Model.Ad">
+    </div>
+    <div class="form-group">
+        <label>Soyad</label>
+        <input type="text" class="form-control" id="Soyad" name="Soyad" value="@Model.Soyad">
+    </div>
+    <div class="form-group">
+        <label>Firma</label>
+        <input type="text" class="form-control" id="Firma" name="Firma" value="@Model.Firma">
+    </div>
+    <button id="btnKaydet" type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Styles {}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+
+
+            $("#frm").submit(function (e) {
+
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+
+                // Get form
+                var form = $('form[name="frm"]');
+
+                form.validate({
+                    rules: {
+                        txtAd: {
+                            required: true
+                        },
+                        txtSoyad: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        txtAd: {
+                            required:
+                                'Ad Giriniz'
+                        },
+                        txtSoyad: {
+                            required:
+                                'Soyad Giriniz'
+                        }
+                    },
+                });
+
+                if (!form.valid()) {
+                    return;
+                }
+
+                // Create an FormData object
+                var data = new FormData(form[0]);
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/Users/KaydetGuncelle",
+                    enctype: 'multipart/form-data',
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    timeout: 600000,
+                    success: function (response) {
+                        if (response.success) {
+
+                            Swal.fire({
+                                title: "Başarılı",
+                                text: response.responseText,
+                                icon: "success",
+                                type: "success",
+                            }).then((result) => {
+                                window.location.href = "/Users";
+
+                            });
+
+                        } else {
+
+                            Swal.fire({
+                                title: "Hata",
+                                text: response.responseText,
+                                icon: 'warning',
+                                type: "error",
+                                confirmButtonText: 'Kapat'
+                            });
+
+                        }
+                    },
+                    error: function (response) {
+
+                        Swal.fire({
+                            title: "Hata",
+                            text: response.responseText,
+                            icon: 'warning',
+                            type: "error",
+                            confirmButtonText: 'Kapat'
+                        });
+                    },
+                    complete: function () {
+                    }
+
+                });
+            });
+        });
+    </script>
+
+}

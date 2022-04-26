@@ -62,7 +62,7 @@
                         for (var i = 0; i < result.length; i++) {
                             console.log(result);
 
-                            table_content_html += "<tr class='table_item' data-id='" + result[i].id + "'>" +
+                            table_content_html += "<tr class='table_item' data-row_id='" + result[i].id + "'>" +
                                 "   <td>" + result[i].ad + " " + result[i].soyad + "</td>" +
                                 "   <td>" + result[i].firma + "</td>" +
                                 "</tr> " +
@@ -87,7 +87,7 @@
                             },
                            });
 
-                        
+
 
                     },
                     error: function (result) {
@@ -110,27 +110,83 @@
                     $("#btnIzle").prop("disabled", false);
                     $("#btnGuncelle").prop("disabled", false);
                     $("#btnSil").prop("disabled", false);
-                    
 
+                    console.log(global_selected_row_id);
                 });
-            
+
             $(document).on("click",'#btnYeni',
                 function (event) {
-                    window.location.href = "/Users/Yeni";   
+                    window.location.href = "/Users/Yeni";
                 });
 
             $(document).on("click", '#btnIzle',
                 function (event) {
                     window.location.href = '/Users/Izle/' + global_selected_row_id;
                 });
+
             $(document).on("click", '#btnGuncelle',
                 function (event) {
                     window.location.href = '/Users/Guncelle/' + global_selected_row_id;
                 });
-            $(document).on("click", '#btnSil',
+
+             $(document).on("click",
+                '#btnSil',
                 function (event) {
-                    //window.location.href = '/Kullanicilarim/Sil/' + global_selected_row_id;
+                Swal.fire({
+                    title: "İşlem Onay",
+                    text: "Seçili Kayıt Silinecek Emin Misiniz",
+                    type: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet Sil!',
+                    cancelButtonText: 'Hayır',
+                }).then((result) => {
+                    if (result.value) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/Users/KayitSil/" + global_selected_row_id,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.success) {
+                                    swal.fire({
+                                        title: "Başarılı",
+                                        text: response.responseText,
+                                        type: "success",
+
+                                    }).then((result) => {
+                                        $('#table_general').DataTable().destroy();
+                                        GetList();
+
+                                    });
+                                } else {
+                                    swal.fire({
+                                        title: "HATA",
+                                        text: response.responseText,
+                                        type: "error",
+                                        confirmButtonClass: "btn btn-secondary",
+                                    });
+                                    return;
+                                }
+                            },
+                            error: function (response) {
+                                swal.fire({
+                                    title: "HATA",
+                                    text: response.responseText,
+                                    type: "error",
+                                    confirmButtonClass: "btn btn-secondary",
+                                    onClose: function () {
+                                    }
+
+                                });
+                                return;
+                            }
+                        });
+
+
+                    }
                 });
+
+            });
 
         });
     </script>
